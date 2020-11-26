@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krestiki?net_noliki</title>
+<body>
+<div class="content">
+<div class="currentPlayer">
+<span>Сейчас ходит:
+<span id="curPlyr">X
+</span>
+</span>
+</div>
+<div id="area"></div>
+<div class="stat">
+<table>
+<th colspan="2">Статистика</th>
+<tr>
+<td>X</td>
+<td><span id="sX">0</span></td>
+</tr>
+<tr>
+<td>O</td>
+<td><span id="sO">0</span></td>
+</tr>
+<tr>
+<td>Ничьи</td>
+<td><span id="sD">0</span></td>
+</tr>
+</table>
+</div>
+</div>
+<style>
+* {
+margin: 0; padding: 0;
+}
+.content
+{
+display: flex;
+margin: 100px 50px 50px 50px;
+font-family: sans-serif;
+}
+#area
+{
+width: 156px;
+border: 1px solid #000;
+margin: 0 auto;
+font-size: 0;
+}
+.cell
+{
+width: 50px;
+height: 50px;
+line-height: 50px;
+text-align: center;
+display: inline-block;
+font-size: 26px;
+border: 1px solid #000;
+cursor: pointer;
+vertical-align: middle;
+transition: background .1s;
+}
+.cell:hover
+{
+background-color: #F1F1F1;
+}
+
+.currentPlayer
+{
+width: 140px;
+font-size: 18px;
+display: flex;
+align-items: center;
+}
+
+.stat
+{
+display: flex;
+align-items: center;
+font-size: 18px;
+}
+
+.stat table
+{
+border-collapse: collapse;
+}
+
+.stat table, .stat th, .stat td
+{
+border: 1px solid #000;
+padding: 5px;
+text-align: center;
+}
+span {
+border: black solid 3px;
+color: red;
+}
+body {
+-webkit-animation: color 15s ease-in-out infinite;
+-moz-animation: color 15s ease-in-out infinite;
+-o-animation: color 15s ease-in-out infinite;
+animation: color 15s ease-in-out infinite;
+font-weight: bold;
+color: white;
+
+}
+@keyframes color {
+0%{background-color: #501616;}
+10%{background-color: #413021;}
+20%{background-color: #4e5021;}
+30%{background-color: #2e6d23;}
+40%{background-color: #174353;}
+50%{background-color: #1d365a;}
+60%{background-color: #491858;}
+70%{background-color: #6d2077;}
+80%{background-color: #683927;}
+90%{background-color: #23692d;}
+100%{background-color: #742d70;}
+}
+</style>
+<script>
+var area = document.getElementById('area'); // получения поля с клетками
+var cell = document.getElementsByClassName('cell'); // получение всех клеток
+var currentPlayer = document.getElementById('curPlyr'); // получение того кто сейчас ходит
+
+var player = "x"; // изначально ходит x
+var stat = // статистика: победы x, 0 и ничьи
+{
+'x': 0,
+'o': 0,
+'d': 0
+}
+var winIndex = // возможные выигрышные комбинации
+[
+[1,2,3],
+[4,5,6],
+[7,8,9],
+[1,4,7],
+[2,5,8],
+[3,6,9],
+[1,5,9],
+[3,5,7]
+];
+for(var i = 1; i <= 9; i++)
+{
+area.innerHTML += "<div class='cell' pos=" + i + "></div>"; // добавить клеткам номер - pos
+}
+for (var i = 0; i< cell.length; i++)
+{
+cell[i].addEventListener('click', cellClick, false); // добавить всем клеткам возможность использования функции при нажатии на нее
+}
+function cellClick() // функция при нажатии на клетку
+{
+var data = []; // массив для проверки победы
+if(!this.innerHTML) // если клетка пустая то добавить в нее символ текущего игрока
+{
+this.innerHTML = player;
+}
+else
+{
+alert("Ячейка занята"); // если клетка не пустая уведомить об этом
+return;
+}
+for(var i in cell)
+{
+if(cell[i].innerHTML == player) // если клетка занята игроком
+{
+data.push(parseInt(cell[i].getAttribute('pos'))); // добавить в массив номер клетки (pos)
+}
+}
+if(checkWin(data)) // если игрок победил
+{
+stat[player] += 1; // добавление 1 ко счету
+restart("Выиграл: " + player); // вызов функции restart с выводом соответствующего текста
+}
+else // если не победил
+{
+var draw = true;
+for(var i in cell)
+{
+if(cell[i].innerHTML == '') draw = false; // если какая-то ячейка пустая то игра продолжается
+}
+if(draw) // если все ячейки заняты
+{
+stat.d += 1; // к ничье в статистике добавляется 1
+restart("Ничья"); // вызов функции restart с выводом соответствующего текста
+}
+}
+player = player == "x" ? "o" : "x"; // если игрок x то замена на o, иначе замена на x
+currentPlayer.innerHTML = player.toUpperCase(); // текущий игрок - player капсом
+}
+ 
+function checkWin(data) // функция проверки на победу
+{
+for(var i in winIndex) // разбор массива с выигрышными комбинациями (строки [])
+{
+var win = true;
+for(var j in winIndex[i]) // разбор массива с выигрышными комбинациями (то что в строках [])
+{
+var id = winIndex[i][j];
+var ind = data.indexOf(id);
+if(ind == -1) // если клетка с выгрышной комбинацией в массиве data не нашлась то победы нет
+{
+win = false
+}
+}
+if(win) return true; // победа если все сошлось
+}
+return false;
+}
+function restart(text) // функция restart
+{
+alert(text); // вывод принимаемого текста
+for(var i = 0; i < cell.length; i++) // все ячейки становятся пустые
+{
+cell[i].innerHTML = '';
+}
+updateStat(); // статистика обновляется
+}
+function updateStat() // функция с обновлением статистики
+{
+// в клетках со счетом значения перезаписываются
+document.getElementById('sX').innerHTML = stat.x;
+document.getElementById('sO').innerHTML = stat.o;
+document.getElementById('sD').innerHTML = stat.d;
+}
+</script>
+</body>
+</html>
