@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Color</title>
+    <style>
+
+#field td {
+    width: 100px;
+    height: 100px;
+    border: 1px solid black;
+    text-align: center;
+    font-weight: bold;
+}
+
+.red{
+   background-color: red;
+}
+
+.green{
+    background-color: green;
+}
+
+.blue{
+    background-color: blue;
+}
+    </style>
+</head>
+<body>
+	<table id="field"></table>
+	<script>
+		
+let userSize = prompt("Размер таблицы", "Напиши 1 цифру");  //Размер поля (если написана 3, то формирует поле 3 на 3)
+let table = document.getElementById('field'); //Получаем данные тега таблицы
+let colors = ['red', 'green', 'blue']; //Задаем цвета для ячеек
+let stepCount = 0; //кол-во всех шагов
+
+function getRandomInt(max) { //Функция для рандомного выбора
+	return Math.floor(Math.random() * (max + 1));
+}
+
+function random(arr) { //Функция рандомного выбора индекса массива с цветами
+	return arr[getRandomInt(arr.length - 1)];
+}
+
+function createField(size){   //Создание поля
+	for (let tblRow = 0; tblRow < size; tblRow++){  // Создание строк таблицы
+		let tr = document.createElement('tr');
+		for (let tblColl = 0; tblColl < size; tblColl++){  //Цикл создания ячеек для каждой строки таблицы
+			let td = document.createElement('td');  //Создает ячейку для строки таблицы
+			td.classList.add(random(colors))  // Рандомный цвет для ячейки
+			td.addEventListener("click", step)  //Добавление ячейки, при нажатии
+			tr.appendChild(td);   //Добавляет ячейку в строку таблицы
+		}
+	table.appendChild(tr); //Создает строку для таблицы
+	}
+}
+
+function step() {     //Функция шагов при нажатии
+	stepCount += 1;    //При нажатии на на блок увеличивается кол-ство шагов
+	let color = colors.indexOf(this.classList.item(0))  //Индекс цвета ячейки
+	if (color == colors.length-1) this.classList.add(colors[0])  //Если цвет ячейки последний в массиве, то берется цвет из начала массива
+	else this.classList.add(colors[color+1])  //Иначе цвета идут друг за другом
+	this.classList.remove(colors[color])	  //Удаляет предыдущее имя класса  
+	if (isVictory(cells)) {   //Если существует функция победы то 
+		alert("Победа, количество шагов: "+ stepCount);// вывод  окна(победа) с кол-вом сделанных шагов
+	}
+}
+
+function isVictory(cells) {  //Условия для вывыдения победы
+	let cellsColor = [];
+	for (let cell of cells) cellsColor.push(cell.classList.item(0));  //Вставляем все названия классов ячеек в массив
+	for (let i = 0; i < cellsColor.length; i++) {   //Перебираем все ячейки
+        while(cellsColor[i] != cellsColor[0]) return false;  //Возвращает ложь, пока хоть какой-то класс ячейки не равен классу первой ячейки
+    } 
+	return true;  //Возвращает истину, если все имена классов равны
+}
+createField(userSize)  //Функции для создания поля
+let cells = document.querySelectorAll('td');   //Выбираем все поле
+	</script>
+	
+</body>
+</html>
