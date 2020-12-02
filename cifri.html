@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number</title>
+<style>
+* {margin: 0px; padding: 0px;}
+html, body {
+width: 100%;
+height: 100%;
+background-color: white;
+}
+
+#field td {
+width: 115px;
+height: 115px;
+border: 1px solid black;
+text-align: center;
+font-weight: bold;
+}
+#lab {display:none}
+#time {background-color: transparent; border: none;}
+</style>
+</head>
+<body>
+<main>
+<div>
+<form name="clockform">
+<input id="time" name="clock" size="12" maxlength="12" value="00:00.00">
+<input id="lab" name="label" size="12" maxlength="40" value="">
+</form>
+<table id="field"> </table>
+</div>
+<script>
+let n = 2 //Начальный размер таблицы
+let del = 0;
+let init=0; //Выключатель
+let startDate; //Нынешнее время
+let clocktimer; //Время в таймере
+function tables()
+{
+findTIME();
+let num = n; //Размер таблицы
+let j = 0;  //Счетчик для ячеек
+let i = 0  //Счетчик для условия цикла
+let arr = [];
+while(i < num*num) //Пока i меньше размера массива
+{
+arr[i] = i+1; 
+i++; //Добавляются числа по порядку в массив от 0 и более
+}
+arr = (shuffle(arr)) //Числа перемешиваются с помощью функции 
+let num1 = num;
+let mun;
+while(num > 0) //Цикл котоырй генерирует столбцы таблицы
+{
+mun = num1 //Счетчик генерации ячеек
+let tab = document.getElementById("field"); 
+let tr = document.createElement("tr");
+tab.appendChild(tr); //Создание столбца в таблице
+while(mun > 0)  //Генерация ячеек в столбцах
+{
+let td = document.createElement("td");
+td.classList.add(j);
+tr.appendChild(td); //Создание ячейки в столбце таблицы
+td.innerHTML = arr[j]; //Добавление числа в ячейку
+j++;
+mun--;
+}
+num--;
+}
+let cells = document.querySelectorAll('#field td') //Выбирает блоки в таблице
+gameplay(cells); //Запуск функции
+}
+function shuffle(arr) //Функция берет значение из массива arr
+{ 
+let result = []; // Массив с перемешанными числами
+while (arr.length > 0) //Пока длина массива меньше 0  
+{ 
+let random = getRandomInt(0, arr.length - 1); //Получаем рандомное число
+let elem = arr.splice(random, 1)[0]; //Вырезаем из массива и записываем в переменную
+result.push(elem); //Сохраняем  в новый массив
+}
+return result; //Возвращаем перемешанный массив
+}
+function getRandomInt(min, max) //Функция, которая  выбирает рандомное число
+{ 
+return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function gameplay(cells) //Функция  для процесса игры
+{
+let i = 0;
+for (let cell of cells) 
+{
+cell.addEventListener('click', function step() //При нажатии на одну из ячеек , функция активируется
+{
+if(i+1 ==  this.innerText) //Если значение i+1 равен числу в ячейки
+{
+this.style.background = 'red'; // Ячейка красится в красный цвет
+this.style.transition = "0.5s";// С заддержкой 0,5 s
+i++; //Счетчик увеличивается 
+if(i == n*n) //Если счетчик равен размеру игрового поля то 
+{
+let j = Math.sqrt(i); //Кол-во строк в таблице
+while(j > 0) 
+{
+document.getElementById('field').deleteRow(del); //Цикл для очищения всей таблицы
+j--;
+}
+n++; // Переменная увеличивающая размера игрового поля
+findTIME();
+tables(); //Игра начинается заново, но уже со след уровнем (увел-ым полем)
+}
+} 
+});
+}
+}
+function clearFields() { //Функция очищения таймера
+init = 0;  //Выключатель  снова равен 0:00
+clearTimeout(clocktimer); //Очищает переменную в которой выполняется setTimeout
+document.clockform.clock.value='00:00.00';
+document.clockform.label.value='';
+ }
+function startTIME() { //Функция запускает таймер
+let thisDate = new Date(); //Объект с нынешними датой и временем
+let t = thisDate.getTime() - startDate.getTime(); //Получаем начальное время, то есть 0
+let ms = t%1000; t-=ms; ms=Math.floor(ms/10); //Милисекунды
+t = Math.floor (t/1000);
+let s = t%60; t-=s; //Секунды
+t = Math.floor (t/60);
+let m = t%60; t-=m; //Минуты
+if (m<10) m='0'+m;
+if (s<10) s='0'+s;
+if (ms<10) ms='0'+ms; //Если часы, минуты, секунды, милисекунды меньше 10, то к ним добавляется 0
+if (init==1) document.clockform.clock.value = m + ':' + s + '.' + ms; //Если переключатель равен 1
+clocktimer = setTimeout("startTIME()",10); //Каждую милисекунду операция повторяется
+}
+function findTIME() { //Функция при нажатии
+if (init==0) { //Если значение 0
+startDate = new Date(); //Объект с текущей датой и временем
+startTIME(); //Запуск функции подсчета времени с момента начала игры
+init=1; //Значение = 1
+} 
+else {
+alert("ВЫ ПРОШЛИ УРОВЕНЬ! Ваше время: " + document.clockform.clock.value);
+clearFields(); //Функция очищения времени
+}
+}
+tables(); //Начало игры
+</script>  
+</main>
+</div>
+</body>
+</html>
